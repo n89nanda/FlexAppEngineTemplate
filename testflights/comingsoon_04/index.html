@@ -85,7 +85,7 @@
 						Follow us for update now!
 					</p>
 
-					<form class="contact100-form validate-form">
+					<form class="contact100-form validate-form" onsubmit="writeUserData()"  id="subscribeform">
 						<div class="wrap-input100 m-b-10 validate-input" data-validate = "Name is required">
 							<input class="s1-txt4 placeholder0 input100" type="text" name="name" placeholder="Name">
 							<span class="focus-input100"></span>
@@ -113,6 +113,62 @@
 	</div>
 
 	
+<!--===============================================================================================-->	
+
+<script src="https://www.gstatic.com/firebasejs/5.1.0/firebase.js"></script>
+<script>
+  // Initialize Firebase
+  var config = {
+    apiKey: "AIzaSyBBRO0pMUwuZsE4F3Vk-MZ4ClmfG99eQ-0",
+    authDomain: "testflightsbeta.firebaseapp.com",
+    databaseURL: "https://testflightsbeta.firebaseio.com",
+    projectId: "testflightsbeta",
+    storageBucket: "testflightsbeta.appspot.com",
+    messagingSenderId: "460228247329"
+  };
+  firebase.initializeApp(config);
+</script>
+
+<script>
+  var uid;
+  var database = firebase.database();
+
+  // Anonymous Sign in
+firebase.auth().signInAnonymously().catch(function(error) {
+  // Handle Errors here.
+  var errorCode = error.code;
+  var errorMessage = error.message;
+  console.log("errorCode:", errorCode);
+  console.log("errorMessage:", errorMessage);
+  // ...
+});
+
+firebase.auth().onAuthStateChanged(function(user) {
+  if (user) {
+    // User is signed in.
+    var isAnonymous = user.isAnonymous;
+    uid = user.uid;
+	console.log("isAnonymous:", isAnonymous);
+	console.log("uid:", uid);
+  } else {
+    // User is signed out.
+    console.log("User has signed out");
+  }
+  // ...
+});
+
+
+function writeUserData() {
+	var form = new FormData(document.getElementById("subscribeform"));
+	var inputName = form.get("name");
+	var inputEmail = form.get("email");
+	database.ref('PreLaunchUsers/' + uid).set({
+    name: inputName,
+    email: inputEmail
+    });
+  }
+</script>
+	
 
 <!--===============================================================================================-->	
 	<script src="{{ url_for('static', filename='vendor/jquery/jquery-3.2.1.min.js') }}"></script>
@@ -127,12 +183,35 @@
 	<script src="{{ url_for('static', filename='vendor/countdowntime/moment-timezone-with-data.min.js') }}"></script>
 	<script src="{{ url_for('static', filename='vendor/countdowntime/countdowntime.js') }}"></script>
 	<script>
+
+		console.log("Initializing countdown...");
+		var start = moment("2018-08-01", "YYYY-MM-DD");
+		var end = moment("2018-06-24", "YYYY-MM-DD");
+		
+		var days = moment.duration(start.diff(end)).asDays();
+		// var hours = moment.duration(start.diff(end)).asHours();
+		// var minutes = moment.duration(start.diff(end)).asMinutes();
+		// var seconds = moment.duration(start.diff(end)).asSeconds();
+		console.log("days:", days);
+		// $('.cd100').countdown100({
+		// 	// Set Endtime here
+		// 	// Endtime must be > current time
+		// 	endtimeYear: 0,
+		// 	endtimeMonth: 0,
+		// 	endtimeDate: 35,
+		// 	endtimeHours: 18,
+		// 	endtimeMinutes: 0,
+		// 	endtimeSeconds: 0,
+		// 	timeZone: "" 
+		// 	// ex:  timeZone: "America/New_York", can be empty
+		// 	// go to " http://momentjs.com/timezone/ " to get timezone
+		// });
 		$('.cd100').countdown100({
 			// Set Endtime here
 			// Endtime must be > current time
 			endtimeYear: 0,
 			endtimeMonth: 0,
-			endtimeDate: 35,
+			endtimeDate: days,
 			endtimeHours: 18,
 			endtimeMinutes: 0,
 			endtimeSeconds: 0,
